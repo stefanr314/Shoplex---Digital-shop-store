@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title><%= pageTitle %></title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="/css/main.css" />
+    <link rel="stylesheet" href="/css/product.css" />
+    <style>
+      body,
+      html {
+        height: 100%;
+        margin: 0;
+      }
+      .hero-image {
+        width: 100%;
+        height: 90vh;
+        background-image: url("images/hero.jpg");
+        background-size: cover;
+        background-position: center;
+        position: relative;
+      }
+      .navbar {
+        position: fixed;
+        width: 100%;
+        z-index: 1;
+        transition: background-color 0.3s;
+      }
+      .navbar-transparent {
+        background-color: transparent;
+      }
+      .navbar-transparent a {
+        color: white;
+      }
+      .navbar-transparent form button {
+        color: white;
+      }
+      .navbar-dark {
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+      .content {
+        height: 200vh; /* For demonstration purposes */
+      }
+      .card-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        padding: 20px;
+      }
+      .card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .card-img-top {
+        transition: transform 0.3s ease;
+        max-height: 250px;
+        object-fit: contain;
+      }
+      .card:hover .card-img-top {
+        transform: scale(1.1);
+      }
+      .card-body {
+        padding: 20px;
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: column;
+      }
+      .card-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        flex: 0 0 auto;
+      }
+      .card-price {
+        font-size: 1.25rem;
+        color: #28a745;
+        font-weight: bold;
+        flex: 0 0 auto;
+      }
+      .card-text {
+        flex: 1 1 auto;
+        overflow: auto;
+        max-height: 150px;
+      }
+      .card-icons {
+        position: absolute;
+        top: 10px;
+        right: -40px;
+        transition: right 0.3s ease;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 0 0 0 10px;
+      }
+      .card:hover .card-icons {
+        right: 10px;
+      }
+      .card-icons a,
+      .card-icons button {
+        color: white;
+        margin: 0 5px;
+        font-size: 1.5rem;
+        text-decoration: none;
+        background: none;
+        border: none;
+      }
+      .pagination .page-link {
+        color: #090e13;
+      }
+      .pagination .page-link:hover {
+        color: #ffffff;
+        background: rgba(0, 0, 0, 0.7);
+      }
+      .pagination .page-item.active .page-link {
+        color: #ffffff;
+        background: rgba(0, 0, 0, 0.8);
+        border-color: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <%- include('../includes/navbar.ejs') %>
+    <main class="card-container">
+      <% if (products.length > 0) { %> <% for (let product of products) { %>
+      <div class="card">
+        <img
+          src="/<%= product.imageUrl %>"
+          class="card-img-top"
+          alt="Product Image"
+        />
+        <div class="card-body">
+          <h5 class="card-title"><%= product.title %></h5>
+          <p class="card-price">$<%= product.price %></p>
+          <p class="card-text"><%= product.description %></p>
+        </div>
+        <div class="card-icons">
+          <a href="/products/<%= product._id %>" title="View Details">
+            <i class="bi bi-eye-fill"></i>
+          </a>
+          <% if(isAuth){%>
+          <form action="/cart" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <button title="Add to Cart"><i class="bi bi-cart-fill"></i></button>
+            <input type="hidden" name="productId" value="<%= product._id %>" />
+          </form>
+          <% } %>
+        </div>
+      </div>
+      <% } %> <% } else { %>
+      <h1>No Products Found!</h1>
+      <% } %>
+    </main>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+      window.addEventListener("scroll", function () {
+        const navbar = document.querySelector(".navbar");
+        if (window.scrollY > 0) {
+          navbar.classList.remove("navbar-transparent");
+          navbar.classList.add("navbar-dark");
+        } else {
+          navbar.classList.remove("navbar-dark");
+          navbar.classList.add("navbar-transparent");
+        }
+      });
+    </script>
+  </body>
+</html>

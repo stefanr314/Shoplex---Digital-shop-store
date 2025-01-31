@@ -1,0 +1,145 @@
+<%- include('../includes/head.ejs') %>
+
+<link rel="stylesheet" href="/css/forms.css">
+<link rel="stylesheet" href="/css/product.css">
+<style>
+  body, html {
+    height: 100%;
+    margin: 0;
+  }
+  .bg-image {
+    background-image: url('/images/hero4.jpg'); /* Putanja do slike */
+    background-size: cover;
+    background-position: center;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+  }
+  .cart-container {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  .cart-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #333;
+    margin-right: 15px;
+  }
+  .cart__item-list {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    margin-bottom: 2rem;
+  }
+  .cart__item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+  }
+  .cart__item img {
+    max-width: 80px;
+    height: auto;
+    margin-right: 10px;
+    min-width: 40px;
+    min-height: 55px;
+  }
+  .cart__item h1, .cart__item h2 {
+    margin: 0;
+    font-size: 1rem;
+  }
+  .cart__item h1 {
+    flex: 0.8;
+    font-weight: bold;
+    color: #333;
+  }
+  .cart__item h2 {
+    flex: 0.96;
+    color: #28a745;
+    font-weight: bold;
+  }
+  .cart__item .item-price {
+    flex: 1;
+    color: #28a745;
+    font-weight: bold;
+  }
+  .btn-danger {
+    background-color: #d42a3b;
+    border-color: #dc3545;
+    color: rgba(255,255,255,0.9);
+    flex: 0 0 auto;
+  }
+  .btn-danger:hover {
+    background-color: #a41d2b;
+    border-color: #bd2130;
+  }
+  .btn-primary {
+    background-color: #313532;
+    border-color: #232323;
+    color: white;
+  }
+  .btn-primary:hover {
+    background-color: #0c0d0c;
+    border-color: #2a2b2a;
+  }
+  .centered {
+    text-align: center;
+    margin-top: 20px;
+  }
+</style>
+</head>
+
+<body>
+<%- include('../includes/navbar.ejs') %>
+<div class="bg-image"></div> <!-- Pozadinska slika -->
+
+<main class="container mt-5">
+  <div class="cart-container">
+    <% if(cartItems.length > 0){ %>
+      <div class="cart-header">
+        <div>Proizvod</div>
+        <div>Cijena</div>
+        <div>Količina</div>
+        <div class="mr-17">Akcija</div>
+      </div>
+      <ul class="cart__item-list">
+        <% for(let cartItem of cartItems){ %>
+          <li class="cart__item">
+            <img src="<%= cartItem.productId.imageUrl %>" alt="<%= cartItem.productId.title %>">
+            <h1><%= cartItem.productId.title %></h1>
+            <div class="item-price">$<%= cartItem.productId.price.toFixed(2) %></div>
+            <h2><%= cartItem.quantity %></h2>
+            <form action="/delete-cart-item" method="post" class="ml-auto mr-10">
+              <input type="hidden" name="productId" value="<%= cartItem.productId._id %>">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button class="btn btn-danger" type="submit">Delete</button>
+            </form>
+          </li>
+        <% } %>
+      </ul>
+      <div class="centered">
+        <!-- <form action="/create-order" method="post">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <button class="btn btn-primary" type="submit">Order Now!</button>
+        </form> -->
+        <a class="btn btn-primary" href="/checkout">Order Now!</a>
+      </div>
+    <% } else { %>
+      <div class="alert alert-info text-center" role="alert">
+        No products in cart!
+      </div>
+    <% } %>
+  </div>
+</main>
+<%- include('../includes/end.ejs') %>
+</body>

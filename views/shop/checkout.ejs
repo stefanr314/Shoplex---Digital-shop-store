@@ -1,0 +1,125 @@
+<%- include('../includes/head.ejs') %>
+<link rel="stylesheet" href="/css/forms.css">
+<link rel="stylesheet" href="/css/product.css">
+<style> 
+  body, html { 
+    height: 100%; 
+    margin: 0; 
+  } 
+  .bg-image {
+    background-image: url('/images/hero4.jpg'); /* Putanja do slike */
+    background-size: cover; 
+    background-position: center; 
+    height: 100%; 
+    width: 100%; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    z-index: -1; 
+  } 
+  .checkout-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 50px;
+  }
+  .items-container {
+    flex: 2;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  .items-container h2 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+  .item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+  }
+  .item-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+  }
+  .item-price {
+    font-size: 1.2rem;
+    color: #28a745;
+    font-weight: bold;
+  }
+  .summary-container {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .summary-container h2 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+  .total-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  .btn-primary {
+    background-color: #313532;
+    border-color: #232323;
+    color: white;
+    padding: 10px;
+    font-size: 1.2rem;
+    text-align: center;
+    border-radius: 5px;
+    text-decoration: none;
+  }
+  .btn-primary:hover {
+    background-color: #0c0d0c;
+    border-color: #2a2b2a;
+  }
+</style>
+</head>
+
+<body>
+<%- include('../includes/navbar.ejs') %>
+
+<div class="bg-image"></div> <!-- Pozadinska slika -->
+
+<div class="container mt-5">
+  <div class="row checkout-container">
+    <div class="col-lg-8 items-container">
+      <h2>Items in Your Cart</h2>
+      <% items.forEach(item => { %>
+        <div class="item">
+          <div class="item-title"><%= item.productId.title %></div>
+          <div class="item-price">$<%= item.productId.price.toFixed(2) %> (<%= item.quantity %>)</div>
+        </div>
+      <% }) %>
+    </div>
+    <div class="col-lg-4 ml-3 summary-container">
+      <h2>Order Summary</h2>
+      <div class="total-price">Total: $<%= totalSum.toFixed(2) %></div>
+      <button id="order-btn" class="btn btn-primary btn-block">Go to Payments</button>
+      <script src="https://js.stripe.com/v3/"></script>
+      <script>
+        const stripe = Stripe("pk_test_51QHx9cGHSztBD1j362rrhlQs25cDLB7on1zVQDmgIPFsPqtrxShVuGx3Q2AzLpVNRDPGM8EUtkxsYtITs8G77Wlp00BjEC59Bz");
+
+        document.getElementById('order-btn').addEventListener('click', function () {
+            stripe.redirectToCheckout({
+                sessionId: "<%= sessionId %>"
+            });
+        });
+      </script>
+    </div>
+  </div>
+</div>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<%- include('../includes/end.ejs') %>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title><%= pageTitle %></title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="/css/main.css" />
+    <style>
+      .card-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        padding: 20px;
+      }
+      .card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+        margin-bottom: 30px;
+      }
+      .card-img-top {
+        transition: transform 0.3s ease;
+        max-height: 250px;
+        object-fit: contain;
+      }
+      .card:hover .card-img-top {
+        transform: scale(1.1);
+      }
+      .card-body {
+        padding: 20px;
+      }
+      .card-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+      .card-text {
+        margin: 10px 0;
+      }
+      .card-price {
+        font-size: 1.25rem;
+        color: #28a745;
+        font-weight: bold;
+      }
+      .card-icons {
+        position: absolute;
+        top: 10px;
+        right: -40px;
+        transition: right 0.3s ease;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 0 0 0 10px;
+      }
+      .card:hover .card-icons {
+        right: 10px;
+      }
+      .card-icons a {
+        color: white;
+        margin: 0 5px;
+        font-size: 1.5rem;
+        text-decoration: none;
+      }
+      .card-icons button {
+        color: white;
+        background: rgba(0, 0, 0, 0.7);
+        background-color: transparent;
+        margin: 0 5px;
+        font-size: 1.5rem;
+        border: none;
+      }
+      .pagination .page-link {
+        color: #090e13;
+      }
+      .pagination .page-link:hover {
+        color: #ffffff;
+        background: rgba(0, 0, 0, 0.7);
+      }
+      .pagination .page-item.active .page-link {
+        color: #ffffff;
+        background: rgba(0, 0, 0, 0.8);
+        border-color: #000;
+      }
+      /* Dodatni stil za search bar */
+      .search-bar {
+        margin: 20px;
+        width: 80%;
+        position: relative;
+      }
+      .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        display: none;
+        background-color: white;
+        border: 1px solid #ccc;
+      }
+      .dropdown-item {
+        padding: 10px;
+        cursor: pointer;
+      }
+      .dropdown-item:hover {
+        background-color: #f1f1f1;
+      }
+      #search-results .dropdown-item img {
+        width: 50px; /* Postavljanje širine slike */
+        height: 50px; /* Postavljanje visine slike */
+        object-fit: cover; /* Slika se prilagođava veličini, ali može da bude obrezana */
+        border-radius: 50%; /* Opcionalno: čini sliku okruglom */
+      }
+      .sort-dropdown {
+        position: relative;
+        width: 15%;
+        top: 20px;
+        right: 20px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <%- include('../includes/navbar.ejs') %> <% if(products.length > 0) {%>
+    <div class="d-flex justify-content-between">
+      <div class="search-bar">
+        <input
+          type="text"
+          class="form-control"
+          id="search-query"
+          placeholder="Search products..."
+        />
+        <div class="dropdown-menu" id="search-results"></div>
+      </div>
+      <div class="sort-dropdown">
+        <select class="form-control" id="sort-select">
+          <option value="price-asc">Sort by Price: Low to High</option>
+          <option value="price-desc">Sort by Price: High to Low</option>
+          <option value="title-asc">Sort by Title: A to Z</option>
+          <option value="title-desc">Sort by Title: Z to A</option>
+        </select>
+      </div>
+    </div>
+    <% } %>
+
+    <main class="card-container" id="product-container">
+      <% if (products.length > 0) { %> <% for (let product of products) { %>
+      <div class="card">
+        <img
+          src="/<%= product.imageUrl %>"
+          class="card-img-top"
+          alt="Product Image"
+        />
+        <div class="card-body">
+          <h5 class="card-title"><%= product.title %></h5>
+          <p class="card-text"><%= product.description %></p>
+          <p class="card-price">$<%= product.price %></p>
+        </div>
+        <div class="card-icons">
+          <a href="/products/<%= product._id %>" title="View Details">
+            <i class="bi bi-eye-fill"></i>
+          </a>
+          <!-- <a href="#" title="Add to Cart">
+            <i class="bi bi-cart-fill"></i>
+          </a>  -->
+          <% if(isAuth) {%>
+          <form action="/cart" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <button title="Add to Cart">
+              <i class="bi bi-cart-fill"></i>
+            </button>
+            <input type="hidden" name="productId" value="<%= product._id %>" />
+            <input type="hidden" name="quantity" value="1" />
+          </form>
+          <% }%>
+        </div>
+      </div>
+      <% } %> <% } else { %>
+      <h1>No Products Found!</h1>
+      <% } %>
+    </main>
+    <ul class="pagination justify-content-center" style="margin-top: 20px">
+      <li class="<%= currentPage === 1 ?' page-item disabled' : 'page-item' %>">
+        <a class="page-link" href="/products/?page=1" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      <% if (currentPage !== 1){%>
+      <li class="page-item">
+        <a class="page-link" href="/products/?page=1">1</a>
+      </li>
+      <% } %> <% if (hasPreviousPage && previousPage !== 1){%>
+      <li class="page-item">
+        <a class="page-link" href="/products/?page=<%= previousPage %>"
+          ><%= previousPage %></a
+        >
+      </li>
+      <% } %>
+      <li class="page-item active">
+        <a class="page-link" href="/products/?page=<%= currentPage %>"
+          ><%= currentPage %></a
+        >
+      </li>
+      <% if (hasNextPage){%>
+      <li class="page-item">
+        <a class="page-link" href="/products/?page=<%= nextPage %>"
+          ><%= nextPage %></a
+        >
+      </li>
+      <% } %> <% if (lastPage !== currentPage && nextPage !== lastPage){%>
+      <li class="page-item">
+        <a class="page-link" href="/products/?page=<%= lastPage %>"
+          ><%= lastPage %></a
+        >
+      </li>
+      <% } %>
+      <li
+        class="<%= currentPage === lastPage ? 'page-item disabled' : 'page-item' %>"
+      >
+        <a
+          class="page-link"
+          href="/products/?page=<%= lastPage %>"
+          aria-label="Next"
+        >
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    </ul>
+  </body>
+
+  <script>
+    function decodeHtmlEntities(str) {
+      const txt = document.createElement("textarea");
+      txt.innerHTML = str;
+      return txt.value;
+    }
+
+    function sortProducts(products, criteria) {
+      return products.sort((a, b) => {
+        if (criteria === "title-asc") {
+          return a.title.localeCompare(b.title);
+        } else if (criteria === "price-asc") {
+          return a.price - b.price;
+        } else if (criteria === "price-desc") {
+          return b.price - a.price;
+        } else if (criteria === "title-desc") {
+          return b.title.localeCompare(a.title);
+        }
+      });
+    }
+
+    function displayProducts(products) {
+      const container = document.getElementById("product-container");
+      container.innerHTML = "";
+      products.forEach((product) => {
+        const productElement = document.createElement("div");
+        productElement.classList.add("card");
+        productElement.innerHTML = ` <img
+          src="/${product.imageUrl}"
+          class="card-img-top"
+          alt="Product Image"
+        />
+        <div class="card-body">
+          <h5 class="card-title">${product.title}</h5>
+          <p class="card-text">${product.description}</p>
+          <p class="card-price">$${product.price}</p>
+        </div>
+        <div class="card-icons">
+          <a href="/products/${product._id}" title="View Details">
+            <i class="bi bi-eye-fill"></i>
+          </a>
+          <!-- <a href="#" title="Add to Cart">
+            <i class="bi bi-cart-fill"></i>
+          </a>  -->
+          <% if(isAuth) {%>
+          <form action="/cart" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <button title="Add to Cart">
+              <i class="bi bi-cart-fill"></i>
+            </button>
+            <input type="hidden" name="productId" value="${product._id}" />
+            <input type="hidden" name="quantity" value="1" />
+          </form>
+          <% }%>
+        </div> `;
+        container.appendChild(productElement);
+      });
+    }
+
+    document.getElementById("search-query").value = "";
+
+    document
+      .getElementById("search-query")
+      .addEventListener("input", async function () {
+        const query = this.value;
+        if (query.length > 0) {
+          const response = await fetch(`/search?query=${query}`);
+          const products = await response.json();
+          const searchResults = document.getElementById("search-results");
+          searchResults.innerHTML = "";
+
+          if (products.length > 0) {
+            products.forEach((product) => {
+              const item = document.createElement("a");
+              item.href = `/products/${product._id}`;
+              item.className = "dropdown-item d-flex align-items-center";
+
+              // Kreiraj div za sadržaj stavke (slika + naziv)
+              const contentDiv = document.createElement("div");
+              contentDiv.className = "d-flex align-items-center"; // Koristi d-flex za poravnavanje elemenata
+
+              // Dodaj sliku
+              const img = document.createElement("img");
+              img.src = product.imageUrl;
+              img.alt = product.title;
+              img.className = "mr-2";
+
+              // Dodaj naziv proizvoda
+              const title = document.createElement("span");
+              title.textContent = product.title;
+
+              // Dodaj sliku i naziv u content div
+              contentDiv.appendChild(img);
+              contentDiv.appendChild(title);
+
+              // Dodaj content div u item
+              item.appendChild(contentDiv);
+
+              searchResults.appendChild(item);
+            });
+            searchResults.style.display = "block";
+          } else {
+            searchResults.style.display = "none";
+          }
+        } else {
+          document.getElementById("search-results").style.display = "none";
+        }
+      });
+
+    // Skrivanje rezultata pretrage kada je input polje izgubi fokus, osim ako klikom na rezultate
+    document.addEventListener("click", function (event) {
+      const searchResults = document.getElementById("search-results");
+      const searchQuery = document.getElementById("search-query"); // Provjeri da li je kliknut izvan search-query polja i rezultata pretrage
+      if (
+        !searchQuery.contains(event.target) &&
+        !searchResults.contains(event.target)
+      ) {
+        searchResults.style.display = "none";
+      }
+    });
+
+    document
+      .getElementById("sort-select")
+      .addEventListener("change", function () {
+        const selectedValue = this.value; // Implement sorting logic here using selectedValue
+        const products = decodeHtmlEntities(`<%= products %>`)
+          .replace(/'/g, '"')
+          .replace(/(\w+):/g, '"$1":')
+          .replace(/new ObjectId\("(.+?)"\)/g, '"$1"')
+          .replace(/\\/g, "\\\\"); //zamijeni sa vrijednoscu prve grupe
+        const arrayProd = JSON.parse(`[${products}]`);
+        const sortedProducts = sortProducts(arrayProd, selectedValue);
+        console.log("AAAAAAA");
+        displayProducts(sortedProducts);
+      });
+  </script>
+  <script src="/js/main.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</html>

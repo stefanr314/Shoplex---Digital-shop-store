@@ -1,0 +1,47 @@
+<%- include('../includes/head.ejs') %>
+<body>
+  <%- include('../includes/navbar.ejs') %> <% if(errorMsg) { %>
+  <div class="alert alert-danger mb-0" role="alert">
+    <p><%= errorMsg %></p>
+  </div>
+  <% }%>
+  <main class="container mt-5 d-flex justify-content-center">
+    <div class="card text-center" style="width: 18rem">
+      <div class="card-header h5 text-white" style="background-color: #00463e">
+        Password Reset
+      </div>
+      <form action="/reset" method="post" class="card-body px-5">
+        <p class="card-text py-2">
+          Enter your email address and we'll send you an email with instructions
+          to reset your password.
+        </p>
+        <div data-mdb-input-init class="form-outline">
+          <input
+            type="email"
+            id="typeEmail"
+            class="form-control my-3"
+            name="email"
+          />
+          <label class="form-label" for="typeEmail">Email input</label>
+        </div>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <button
+          data-mdb-ripple-init
+          class="btn btn-primary w-100"
+          type="submit"
+        >
+          Reset password
+        </button>
+        <div class="d-flex justify-content-between mt-4">
+          <a style="color: #000000; text-decoration: underline" href="/login"
+            >Login</a
+          >
+          <a style="color: #000000; text-decoration: underline" href="/signup"
+            >Register</a
+          >
+        </div>
+      </form>
+    </div>
+  </main>
+  <%- include('../includes/end.ejs') %>
+</body>

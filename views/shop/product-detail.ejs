@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title><%= pageTitle %></title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="/css/main.css" />
+    <link rel="stylesheet" href="/css/product.css" />
+    <style>
+      body,
+      html {
+        height: 100%;
+        margin: 0;
+        background-image: url("/images/info2.jpg");
+        background-size: cover;
+        background-position: center;
+      }
+
+      .detail-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        margin: 50px auto;
+        max-width: 1200px;
+      }
+
+      .detail-image {
+        max-width: 50%;
+        margin-right: 30px;
+      }
+
+      .detail-image img {
+        width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .detail-info {
+        max-width: 60%;
+      }
+
+      .detail-title {
+        font-size: 2.5rem;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      .detail-price {
+        font-size: 2rem;
+        color: #28a745;
+        margin-bottom: 20px;
+      }
+
+      .detail-description {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 30px;
+      }
+
+      .quantity-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .quantity-input {
+        max-width: 60px;
+        margin: 0 10px;
+        text-align: center;
+      }
+
+      .btn-quantity {
+        background-color: #313532;
+        border-color: #232323;
+        color: white;
+      }
+
+      .btn-quantity:hover {
+        background-color: #0c0d0c;
+        border-color: #2a2b2a;
+      }
+
+      .btn-primary {
+        background-color: #313532;
+        border-color: #232323;
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      .btn-primary:hover {
+        background-color: #0c0d0c;
+        border-color: #2a2b2a;
+      }
+      /* Onemogućavanje spin button-a u svim pregledačima */
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      input[type="number"] {
+        -moz-appearance: textfield; /* Firefox */
+      }
+    </style>
+  </head>
+
+  <body>
+    <%- include('../includes/navbar.ejs') %>
+
+    <main class="detail-container">
+      <div class="detail-image">
+        <img src="/<%= product.imageUrl %>" alt="<%= product.title %>" />
+      </div>
+      <div class="detail-info">
+        <h1 class="detail-title"><%= product.title %></h1>
+        <h2 class="detail-price">$<%= product.price %></h2>
+        <p class="detail-description"><%= product.description %></p>
+        <% if(isAuthenticated){ %>
+        <form action="/cart" method="post">
+          <div class="quantity-container">
+            <button type="button" class="btn btn-quantity" id="decrease">
+              -
+            </button>
+            <input
+              type="number"
+              class="form-control quantity-input"
+              id="quantityInput"
+              name="quantity"
+              value="1"
+              min="1"
+              step="1"
+            />
+            <button type="button" class="btn btn-quantity" id="increase">
+              +
+            </button>
+          </div>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <button class="btn btn-primary" type="submit">Add to Cart</button>
+          <input type="hidden" name="productId" value="<%= product._id %>" />
+        </form>
+        <% } %>
+      </div>
+    </main>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document
+        .getElementById("decrease")
+        .addEventListener("click", function () {
+          var input = document.getElementById("quantityInput");
+          var currentValue = parseInt(input.value);
+
+          if (currentValue > input.min) {
+            input.value = currentValue - 1;
+          }
+        });
+
+      document
+        .getElementById("increase")
+        .addEventListener("click", function () {
+          var input = document.getElementById("quantityInput");
+          var currentValue = parseInt(input.value);
+
+          input.value = currentValue + 1;
+        });
+    </script>
+  </body>
+</html>

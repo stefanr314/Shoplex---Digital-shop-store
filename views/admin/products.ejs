@@ -1,0 +1,131 @@
+<%- include('../includes/head.ejs') %>
+<link rel="stylesheet" href="/css/product.css">
+<style>
+  body, html {
+    height: 100%;
+    margin: 0;
+  }
+  .container {
+    display: flex;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    overflow-y: auto;
+    height: calc(100vh - 56px); /* Visina koja omogućava skrolovanje */
+  }
+  .product-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    height: 100%;
+    min-height: 450px; /* Minimalna visina kartice kako bi se prikazao cijeli sadržaj */
+  }
+  .product-item .card__image img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+  }
+  .product__description {
+    max-height: 115px;
+    overflow-y: auto;
+    text-align: justify;
+  }
+  .card__content {
+    padding: 10px;
+    flex-grow: 0.8;
+  }
+  .card__content h2.product__price {
+    margin-bottom: 0.7rem;
+  }
+  .card__header, .card__actions {
+    padding: 10px;
+  }
+  .sidebar {
+    position: fixed;
+    top: 56px; /* Visina navbar-a */
+    left: 0;
+    width: 250px;
+    height: calc(100% - 56px);
+    background-color: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow-y: auto;
+  }
+  .sidebar .nav-item {
+    margin-bottom: 10px;
+  }
+  .sidebar .nav-link {
+    color: white;
+  }
+</style>
+</head>
+
+<body>
+<%- include('../includes/navbar.ejs') %>
+
+<div class="container" style="width: 80%; max-width: 85%;margin-left: 20rem; margin-right: 0px;padding-left: 0px;">
+  <div class="sidebar">
+    <h4 class="text-white">Menu</h4>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link" href="user-info">User Info</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link dropdown-toggle" href="#" id="productsDropdown" data-toggle="collapse" data-target="#productsList" aria-expanded="false" aria-controls="productsList">My Products</a>
+        <ul class="collapse" id="productsList">
+          <% for (let product of products) { %>
+            <li class="nav-item">
+              <a class="nav-link" href="#product-<%= product._id %>"><%= product.title %></a>
+            </li>
+          <% } %>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <main class="grid" style="width: 100%;">
+    <% if (products.length > 0) { %>
+      <% for (let product of products) { %>
+        <article class="card product-item" id="product-<%= product._id %>">
+          <header class="card__header">
+            <h1 class="product__title"><%= product.title %></h1>
+          </header>
+          <div class="card__image">
+            <img src="/<%= product.imageUrl %>" alt="<%= product.title %>">
+          </div>
+          <div class="card__content pb-0">
+            <h2 class="product__price">$<%= product.price %></h2>
+            <p class="product__description"><%= product.description %></p>
+          </div>
+          <div class="card__actions">
+            <a href="/admin/edit-product/<%= product._id %>?edit=true" class="btn btn-primary">Edit</a>
+            <form action="/admin/delete-product" method="POST">
+              <input type="hidden" name="productId" value="<%= product._id %>">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button class="btn btn-danger" type="submit">Delete</button>
+            </form>
+          </div>
+        </article>
+      <% } %>
+    <% } else { %>
+      <h1>No Products Found!</h1>
+    <% } %>
+  </main>
+</div>
+<%- include('../includes/end.ejs') %>
+
+<script>
+  // Collapse product list in sidebar
+  document.querySelector('#productsDropdown').addEventListener('click', function() {
+    document.querySelector('#productsList').classList.toggle('show');
+  });
+</script>
+
+</body>

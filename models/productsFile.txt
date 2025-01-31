@@ -1,0 +1,162 @@
+const fs = require("fs");
+const path = require("path");
+const dirname = require("../helper/path");
+
+const p = path.join(dirname, "data", "products.json");
+
+const Cart = require("./cart");
+
+const getProductsFromFile = (cb) => {
+  fs.readFile(p, (err, fileContent) => {
+    if (err) return cb([]); // err baca ako je prazan fajl
+    cb(JSON.parse(fileContent));
+  });
+};
+
+module.exports = class Product {
+  constructor(id, title, imageUrl, price, description) {
+    this.id = id;
+    this.title = title;
+    this.imageUrl = imageUrl;
+    this.price = price;
+    this.description = description;
+  }
+
+  save() {
+    getProductsFromFile((products) => {
+      if (this.id !== null) {
+        const editingProductIndex = products.findIndex(
+          (prod) => prod.id === this.id
+        );
+        console.log(editingProductIndex + ": indeks");
+        const updatedProducts = [...products];
+        updatedProducts[editingProductIndex] = this;
+        fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {
+          console.log(err);
+        });
+      } else {
+        this.id = Math.random();
+        products.push(this);
+        fs.writeFile(p, JSON.stringify(products), (err) => {
+          console.log(err);
+        });
+      }
+    });
+  }
+
+  static delete(id) {
+    getProductsFromFile((products) => {
+      const deleteProductIndex = products.findIndex((prod) => prod.id === id);
+      //console.log(deleteProductIndex);
+      const productPrice = products[deleteProductIndex].price;
+      if (deleteProductIndex !== -1) {
+        const deletedProducts = products.filter((prod) => prod.id !== id);
+        fs.writeFile(p, JSON.stringify(deletedProducts), (err) => {
+          if (!err) {
+            Cart.deleteProduct(id, productPrice);
+          }
+        });
+      }
+    });
+  }
+
+  static fetchAll(cb) {
+    // ovo je asinhrona fija i ako uradis negdje fatchAll jednostavno ti se nece sacekati na zavrsetak te asinhrone fije i imaces undefined
+    //zato se radi preko ovog cb; e to su jadi, jer ces ovu cb fiju proslijediti na nekom drugom mjestu i to ce biti zapravo pomocna fija
+    // koja ce imati product kao argument i tako ces obezbijediti da ne dobijes undefined i da se saceka asinhrona fija, jer ce preko ove
+    // cb fije ti da sacekas fetchAll metodu i da kazes da se tek onda uradi cb fija
+    getProductsFromFile(cb);
+  }
+
+  static findById(id, cb) {
+    getProductsFromFile((products) => {
+      const product = products.find((prod) => prod.id === id);
+      cb(product);
+    });
+  }
+};
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// const getDb = require("../helper/database").getDb;
+// const { ObjectId } = require("mongodb");
+
+// class Product {
+//   constructor(title, price, imageUrl, description, id) {
+//     this.title = title;
+//     this.price = price;
+//     this.imageUrl = imageUrl;
+//     this.description = description;
+//     this._id = id ? new ObjectId(id) : id;
+//   }
+
+//   async save() {
+//     const db = getDb();
+//     const products = db.collection("products");
+//     let result;
+//     try {
+//       if (this._id) {
+//         const filter = { _id: new ObjectId(this._id) };
+//         const updatedDoc = {
+//           $set: {
+//             title: this.title,
+//             price: this.price,
+//             imageUrl: this.imageUrl,
+//             description: this.description,
+//             _id: this._id,
+//           },
+//         };
+//         result = await products.updateOne(filter, updatedDoc, {
+//           upsert: false,
+//         });
+//       } else {
+//         result = await products.insertOne(this);
+//       }
+
+//       return products;
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   }
+
+//   static async fetchAll() {
+//     try {
+//       const db = getDb();
+//       const productsCollection = db.collection("products");
+//       const products = await productsCollection.find().toArray();
+
+//       return products;
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   }
+
+//   static async findById(productId) {
+//     try {
+//       const db = getDb();
+//       const productsCollection = db.collection("products");
+//       const product = await productsCollection.findOne({
+//         _id: new ObjectId(productId),
+//       });
+
+//       console.log(product);
+//       return product;
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   }
+
+//   static async deleteById(productId) {
+//     try {
+//       const db = getDb();
+//       const productsCollection = db.collection("products");
+//       const result = await productsCollection.deleteOne({
+//         _id: new ObjectId(productId),
+//       });
+
+//       if (result.deletedCount === 1)
+//         console.log("Successfully DELETED one document.");
+//       else console.log("No documents matched the query. Deleted 0 documents.");
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   }
+// }

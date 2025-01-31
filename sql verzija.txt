@@ -1,0 +1,35 @@
+// Associations
+User.hasMany(Product, { foreignKey: "userId" });
+Product.belongsTo(User, { constrains: true, onDelete: "CASCADE" });
+
+User.hasOne(Cart);
+Cart.belongsTo(User);
+
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
+
+User.hasMany(Order);
+Order.belongsTo(User);
+
+Order.belongsToMany(Product, { through: OrderItem });
+Product.belongsToMany(Order, { through: OrderItem });
+
+// na osnovu modela kreira odgovorajuce tabele u bazi podataka (ova metoda sync)
+sequelize
+  .sync()
+  .then((_) => {
+    return User.findByPk(1);
+  })
+  .then((user) => {
+    if (!user) {
+      return User.create({ name: "Stefan", email: "test@test.com" });
+    }
+    return user; // i ovo treba da bude promise ali then blok svakako vraca promise pa ti ne treba Promise.resolve(user);
+  })
+  .then((user) => {
+    //console.log(user);
+    app.listen(port, hostname, () => {
+      console.log(`Server running at this site http://${hostname}:${port}/`);
+    });
+  })
+  .catch((err) => console.log(err));
