@@ -1,15 +1,13 @@
 if (typeof window !== "undefined") {
   const bootstrap = require("bootstrap");
 }
+require("dotenv").config();
 
 const express = require("express");
 const path = require("path");
 
 const port = 3000;
 const hostname = "localhost";
-
-const MONGODB_URI =
-  "mongodb+srv://sristic01:stefo1@cluster0.q9meq.mongodb.net/shop?retryWrites=true&w=majority&appName=Cluster0";
 
 const app = express();
 
@@ -21,7 +19,7 @@ const flash = require("connect-flash");
 const multer = require("multer");
 
 const store = new MongoDBStore({
-  uri: MONGODB_URI,
+  uri: process.env.MONGODB_URI,
   collection: "sessions",
 });
 
@@ -115,7 +113,7 @@ app.use(authRouter);
 app.use(errorController.get404);
 
 mongoose
-  .connect(MONGODB_URI)
+  .connect(process.env.MONGODB_URI)
   .then((_) => {
     app.listen(port, hostname, () => {
       console.log("Uspjesna konekcija");
